@@ -1,0 +1,67 @@
+<launch>
+    
+    <!-- Declare arguments. The values can be changed/ set in terminal with roslaunch -->
+    <arg name="sim" default="true" doc="Camera ID"/>
+    <arg name="id" default="Camera1" doc="Camera ID"/>
+    <arg name="rviz" default="true" doc="Bool to select if we launch Rviz"/>
+
+    
+    <!-- Starting usb_cam node with parameters as defined between the node tags-->
+    <node pkg="usb_cam" type="usb_cam_node" name="my_camera" output="screen">
+        <param name="video_device" type="string" value="/dev/video2" />
+        <param name="camera_name" type="string" value="Overhead Cam" />
+        <param name="camera_frame_id" type="string" value="$(arg id)" />
+        <param name="camera_info_url" type="string" value="file://$(find follow_artag)/config/default_cam_calibration.yaml" />
+    </node>
+
+    <!-- Starting rviz -->
+    <group if="$(arg rviz)">
+    <!-- stuff that will only be evaluated if foo is true -->
+    <node pkg="rviz" name="rviz" type="rviz" args="-d $(find follow_artag)/config/cam_config.rviz"/>
+    </group>
+    
+    <include file="$(find ar_track_alvar)/launch/pr2_indiv_no_kinect.launch"> 
+        <arg name="cam_image_topic" value="/my_camera/image_raw"/> 
+        <arg name="cam_info_topic" value="/my_camera/camera_info"/> 
+        <arg name="output_frame" value="$(arg id)"/>
+    </include>
+
+    <node 
+    pkg="tf" 
+    type="static_transform_publisher" 
+    name="Camera_Frame" 
+    output="screen" 
+    args="0.53 0 0.67 0 0 3.14 map $(arg id) 100"/>
+
+    <node 
+    pkg="tf" 
+    type="static_transform_publisher" 
+    name="inverted_ar_frame" 
+    output="screen" 
+    args="0 0 0 0 0 3.14 ar_marker_8 inverted_ar_frame 100"/>
+
+    <node 
+    pkg="tf" 
+    type="static_transform_publisher" 
+    name="base_map" 
+    output="screen" 
+    args="0 0 0 0 0 0 map base_link 100"/>
+
+    <include file="$(find robot_launcher)/launch/launch_robot.launch"> 
+        <arg name="sim" value="$(arg sim)"/>
+    </include>
+
+    <node 
+    pkg="robot_mover" 
+    type="robot_mover_action_server.py" 
+    name="robot_mover_action_server" 
+    output="screen"/>
+
+    <!-- <node 
+    pkg="robot_mover" 
+    type="mover_client_test.py" 
+    name="welding_path_client" 
+    output="screen"/> -->
+
+
+</launch>
