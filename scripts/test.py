@@ -84,8 +84,10 @@ if __name__ == '__main__':
                     transform_pose.header = transform.header
                     transform_pose.pose.position = transform.transform.translation
                     transform_pose.pose.orientation = transform.transform.rotation
-                    transform_pose.pose.position.z = .15
-                    transform_pose.pose.orientation = Quaternion(1,0,0,0)
+                    transform_pose.pose.position.z = .13
+                    transform_pose.pose.position.x += 0.028
+                    transform_pose.pose.position.y += 0.01
+                    transform_pose.pose.orientation = Quaternion(0,0.9636305,0,-0.2672384 )
                     # transformed_pose = tf2_geometry_msgs.do_transform_pose(PoseStamped(tf_buffer.inverted_ar_frame, transform))
                     # rospy.loginfo("Transformed Pose in Map Frame: {}".format(transform_pose))
                     current_pose = transform_pose
